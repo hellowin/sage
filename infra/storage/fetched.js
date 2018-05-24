@@ -1,4 +1,5 @@
 import { AsyncStorage } from 'react-native'
+import _ from 'lodash'
 
 export const getAllFetched = async () => {
     try {
@@ -7,6 +8,20 @@ export const getAllFetched = async () => {
     } catch (err) {
         console.error(err)
         return {}
+    }
+}
+
+export const getAllFetchedItems = async () => {
+    try {
+        const allFetched = await getAllFetched()
+        const items = []
+        const fetcheds = _.map(allFetched, fetchedItems => {
+            if (_.isArray(fetchedItems)) items.push(...fetchedItems)
+        })
+        return items
+    } catch (err) {
+        console.error(err)
+        return []
     }
 }
 

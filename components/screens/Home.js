@@ -9,6 +9,10 @@ export default Home = props => {
             title="Scan Barcode"
             onPress={() => props.navigation.navigate('Scanner')}
         />
+        <Button
+            title="Scanned"
+            onPress={() => props.navigation.navigate('Scanned')}
+        />
         </View>
     );
 }

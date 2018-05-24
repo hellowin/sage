@@ -1,12 +1,14 @@
 import React from 'react'
 import { createStackNavigator } from 'react-navigation'
-import Scanner from './components/screens/Scanner'
 import Home from './components/screens/Home'
+import Scanner from './components/screens/Scanner'
+import Scanned from './components/screens/Scanned'
 
 const Root = createStackNavigator(
   {
     Home,
     Scanner,
+    Scanned,
   },
   {
     initialRouteName: 'Home',
