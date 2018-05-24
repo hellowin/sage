@@ -1,9 +1,10 @@
 import React from 'react'
-import { Text, View, TouchableOpacity, TouchableHighlight } from 'react-native'
+import { Text, View, TouchableOpacity, TouchableHighlight, Button } from 'react-native'
 import { Camera, Permissions } from 'expo'
 import { getItems, setItems } from './infra/storage/fetched'
+import { createStackNavigator } from 'react-navigation'
 
-export default class CameraExample extends React.Component {
+class CameraExample extends React.Component {
   state = {
     hasCameraPermission: null,
     type: Camera.Constants.Type.back,
@@ -80,11 +81,45 @@ export default class CameraExample extends React.Component {
                   <Text>{this.state.isbn}</Text>
                   {!this.state.error ? this.state.items.map((item, i) => <Text key={i}>{item.volumeInfo.title} </Text>) : <Text>{this.state.error.toString()}</Text>}
                   {this.state.fromFetched ? <Text>From cache</Text> : null}
+                  <Button
+                    title="Go to Details"
+                    onPress={() => this.props.navigation.navigate('Details')}
+                  />
                 </View>
             </View>
           </Camera>
         </View>
       )
     }
+  }
+}
+
+class DetailsScreen extends React.Component {
+  render() {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text>Details Screen</Text>
+        <Button
+          title="Go to Home"
+          onPress={() => this.props.navigation.navigate('Home')}
+        />
+      </View>
+    );
+  }
+}
+
+const Root = createStackNavigator(
+  {
+    Home: CameraExample,
+    Details: DetailsScreen,
+  },
+  {
+    initialRouteName: 'Home',
+  }
+)
+
+export default class App extends React.Component {
+  render() {
+    return <Root />;
   }
 }
