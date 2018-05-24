@@ -67,8 +67,9 @@ export default class CameraExample extends React.Component {
                     alignItems: 'center',
                   }}
                 >
+                  {this.state.items.length < 1 ? <Text>Scan a book's ISBN barcode</Text> : null}
                   <Text>{this.state.isbn}</Text>
-                  {!this.state.error ? <Text>{this.state.items.map(item => item.volumeInfo.title + ' ')}</Text> : <Text>{this.state.error.toString()}</Text>}
+                  {!this.state.error ? this.state.items.map((item, i) => <Text key={i}>{item.volumeInfo.title} </Text>) : <Text>{this.state.error.toString()}</Text>}
                 </View>
             </View>
           </Camera>
