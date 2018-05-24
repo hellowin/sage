@@ -1,12 +1,14 @@
-import React from 'react';
-import { Text, View, TouchableOpacity, TouchableHighlight } from 'react-native';
-import { Camera, Permissions } from 'expo';
+import React from 'react'
+import { Text, View, TouchableOpacity, TouchableHighlight } from 'react-native'
+import { Camera, Permissions } from 'expo'
+import { getItems, setItems } from './infra/storage/fetched'
 
 export default class CameraExample extends React.Component {
   state = {
     hasCameraPermission: null,
     type: Camera.Constants.Type.back,
     isbn: null,
+    fromFetched: false,
     items: [],
     error: null,
   };
@@ -16,23 +18,30 @@ export default class CameraExample extends React.Component {
     this.setState({ hasCameraPermission: status === 'granted' });
   }
 
-  fetchIsbn(isbn) {
-    // expose API Key here for testing, subject to change
-    fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyC7I-Seo5oaYA-mtSOhqEpmoqqryrUeaYc`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then((result) => {
-        if (!result.items || !result.items.length) throw new Error("Can't fetch ISBN")
-        this.setState({ isbn, items: result.items, error: null })
-      })
-      .catch(err => {
-        this.setState({ isbn, items: [], error: err });
-      })
+  async fetchIsbn(isbn) {
+    try {
+      const fetchedItems = await getItems(isbn)
+      const items = fetchedItems
+      if (items.length < 1) {
+        // expose API Key here for testing, subject to change
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=AIzaSyC7I-Seo5oaYA-mtSOhqEpmoqqryrUeaYc`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        })
+        const result = await response.json()
+        items = result.items
+        if (!items || !items.length) throw new Error("Can't fetch ISBN")
+        setItems(isbn, items)
+        this.setState({ isbn, items, fromFetched: false, error: null })
+      } else {
+        this.setState({ isbn, items, fromFetched: true, error: null })
+      }
+    } catch (err) {
+      this.setState({ isbn, items: [], fromFetched: false, error: err })
+    }
   }
 
   render() {
@@ -48,7 +57,7 @@ export default class CameraExample extends React.Component {
             style={{ flex: 1 }}
             type={this.state.type}
             onBarCodeRead={({ type, data }) => {
-              this.fetchIsbn(data)
+              if (data != this.state.isbn) this.fetchIsbn(data)
             }}
           >
             <View
@@ -70,6 +79,7 @@ export default class CameraExample extends React.Component {
                   {this.state.items.length < 1 ? <Text>Scan a book's ISBN barcode</Text> : null}
                   <Text>{this.state.isbn}</Text>
                   {!this.state.error ? this.state.items.map((item, i) => <Text key={i}>{item.volumeInfo.title} </Text>) : <Text>{this.state.error.toString()}</Text>}
+                  {this.state.fromFetched ? <Text>From cache</Text> : null}
                 </View>
             </View>
           </Camera>
