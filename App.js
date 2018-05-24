@@ -11,7 +11,7 @@ export default class CameraExample extends React.Component {
     fromFetched: false,
     items: [],
     error: null,
-  };
+  }
 
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -84,7 +84,7 @@ export default class CameraExample extends React.Component {
             </View>
           </Camera>
         </View>
-      );
+      )
     }
   }
 }
